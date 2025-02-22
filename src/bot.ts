@@ -115,7 +115,7 @@ const reply = async (ctx: Context) => {
     const userName = `${ctx.message?.from.first_name}`;
     const text = ctx.message?.text;
     const userId = ctx.from?.id.toString()!;
-    const userDocRef = doc(db, "prep", userId);
+    const userDocRef = doc(db, "rave", userId);
     getDoc(userDocRef)
       .then(async (doc) => {
         let harmonyResponse;
