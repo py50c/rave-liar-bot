@@ -153,9 +153,10 @@ console.log("Bot started");
 const expressApp = express();
 const port = process.env.PORT || 10000;
 
-expressApp.get("/", (req: express.Request, res: express.Response) => {
-  bot.stop();
-  bot.start();
+expressApp.get("/",async (req: express.Request, res: express.Response) => {
+  await bot.stop();
+  await bot.start();
+  console.error(`Bot restarted at ${new Date().toLocaleString()}`);
   res.status(200).send("OK");
 });
 
