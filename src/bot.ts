@@ -7,6 +7,7 @@ import {
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import * as dotenv from "dotenv";
+import express from "express";
 dotenv.config();
 
 const MODEL_NAME: string = "gemini-1.5-flash";
@@ -124,13 +125,9 @@ const reply = async (ctx: Context) => {
         if (doc.exists()) {
           // If there is an already existing chat. Build upon the chat
           docData = doc.data();
-          if (text=='/reset') {
+          if (text == "/reset") {
             setDoc(userDocRef, { id: userId, text_parts: [] });
-            await replyToMessage(
-              ctx,
-              messageId,
-              `Chat reset.`
-            );
+            await replyToMessage(ctx, messageId, `Chat reset.`);
             return;
           }
           harmonyOutput = await harmony(text, docData.text_parts);
@@ -143,11 +140,7 @@ const reply = async (ctx: Context) => {
         let new_text_parts = harmonyOutput.text_parts;
         setDoc(userDocRef, { id: userId, text_parts: new_text_parts });
         console.log(`Replied to Telegram user: ${userId} ${userName}`);
-        await replyToMessage(
-          ctx,
-          messageId,
-          `${harmonyResponse}`
-        );
+        await replyToMessage(ctx, messageId, `${harmonyResponse}`);
       })
       .catch((error) => {
         console.log("Error getting document:", error);
@@ -156,4 +149,18 @@ const reply = async (ctx: Context) => {
 };
 bot.on("message", reply);
 console.log("Bot started");
+
+const expressApp = express();
+const port = process.env.PORT || 10000;
+
+expressApp.get("/", (req: express.Request, res: express.Response) => {
+  bot.stop();
+  bot.start();
+  res.status(200).send("OK");
+});
+
+expressApp.listen(port, () => {
+  console.log(`Express server running on port ${port}`);
+});
+
 bot.start();
