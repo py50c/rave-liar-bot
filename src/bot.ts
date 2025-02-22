@@ -1,4 +1,4 @@
-import { Bot, Context } from "grammy";
+import { Bot, Context, webhookCallback } from "grammy";
 import {
   GoogleGenerativeAI,
   HarmCategory,
@@ -110,7 +110,6 @@ const replyToMessage = (ctx: any, messageId: number, text: string) =>
   });
 
 const reply = async (ctx: Context) => {
-  console.log('Triggered "greeting" text command');
   const messageId = ctx.message?.message_id;
   if (messageId) {
     const userName = `${ctx.message?.from.first_name}`;
@@ -154,14 +153,12 @@ const expressApp = express();
 const port = process.env.PORT || 10000;
 
 expressApp.get("/",async (req: express.Request, res: express.Response) => {
-  await bot.stop();
-  await bot.start();
-  console.error(`Bot restarted at ${new Date().toLocaleString()}`);
   res.status(200).send("OK");
 });
 
+expressApp.use(express.json());
+expressApp.use(webhookCallback(bot, "express"));
 expressApp.listen(port, () => {
-  console.log(`Express server running on port ${port}`);
+  console.log(`Bot server running on port ${port}`);
 });
 
-bot.start();
